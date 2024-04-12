@@ -1,3 +1,4 @@
+from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.response import Response
@@ -17,9 +18,17 @@ class CreateUserView(APIView):
 
 
 class LoginView(APIView):
-    @swagger_auto_schema(request_body=UserLoginSerializer, responses={200: UserLoginSerializer})
+    @swagger_auto_schema(request_body=UserLoginSerializer, responses={200: UserSerializer()})
     def post(self, request):
         serializer = UserLoginSerializer(data=request.data)
         if serializer.is_valid():
-            return Response(serializer.validated_data)
+            username = serializer.validated_data['username']
+            password = serializer.validated_data['password']
+            user = authenticate(username=username, password=password)
+            if user:
+                user_data = UserSerializer(user).data
+                user_data['tokens'] = serializer.get_tokens(serializer.validated_data)
+                return Response(user_data, status=status.HTTP_200_OK)
+            else:
+                return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
