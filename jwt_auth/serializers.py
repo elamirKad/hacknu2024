@@ -26,5 +26,6 @@ class UserLoginSerializer(serializers.Serializer):
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
             }
+            data.pop('password')
             return data
         raise serializers.ValidationError("Incorrect Credentials")
