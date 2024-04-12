@@ -4,6 +4,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from drf_yasg.utils import swagger_auto_schema
+from rest_framework_simplejwt.tokens import RefreshToken
+
 from .serializers import UserSerializer, UserLoginSerializer
 
 
@@ -22,13 +24,17 @@ class LoginView(APIView):
     def post(self, request):
         serializer = UserLoginSerializer(data=request.data)
         if serializer.is_valid():
-            username = serializer.validated_data['username']
-            password = serializer.validated_data['password']
+            username = serializer.validated_data.get('username')
+            password = serializer.validated_data.get('password')
             user = authenticate(username=username, password=password)
             if user:
-                user_data = UserSerializer(user).data
-                user_data['tokens'] = serializer.get_tokens(serializer.validated_data)
-                return Response(user_data, status=status.HTTP_200_OK)
+                refresh = RefreshToken.for_user(user)
+                data = {
+                    'user': UserSerializer(user).data,
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                }
+                return Response(data, status=status.HTTP_200_OK)
             else:
                 return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
