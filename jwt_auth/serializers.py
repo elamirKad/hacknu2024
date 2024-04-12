@@ -3,7 +3,6 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 
-
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -18,18 +17,14 @@ class UserSerializer(serializers.ModelSerializer):
 class UserLoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
-    tokens = serializers.SerializerMethodField()
-
-    def get_tokens(self, obj):
-        user = User.objects.get(username=obj['username'])
-        refresh = RefreshToken.for_user(user)
-        return {
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-        }
 
     def validate(self, data):
         user = authenticate(username=data['username'], password=data['password'])
         if user:
-            return user
+            refresh = RefreshToken.for_user(user)
+            data['tokens'] = {
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            }
+            return data
         raise serializers.ValidationError("Incorrect Credentials")
