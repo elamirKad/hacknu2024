@@ -8,7 +8,7 @@ class ExperienceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Experience
-        fields = ('reading_exp', 'speaking_exp', 'grammar_exp', 'total_experience', 'total_level')
+        fields = ('reading_exp', 'speaking_exp', 'grammar_exp', 'vocabulary_exp', 'writing_exp', 'total_experience', 'total_level')
 
     def get_total_level(self, obj):
         level, title = obj.total_level

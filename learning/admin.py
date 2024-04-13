@@ -5,7 +5,7 @@ from .models import Experience
 
 @admin.register(Experience)
 class ExperienceAdmin(admin.ModelAdmin):
-    list_display = ('user', 'reading_exp', 'speaking_exp', 'grammar_exp', 'display_total_experience', 'display_total_level')
+    list_display = ('user', 'reading_exp', 'speaking_exp', 'grammar_exp', 'vocabulary_exp', 'writing_exp', 'display_total_experience', 'display_total_level')
     search_fields = ('user__username',)
     list_filter = ('user__username',)
 
@@ -20,7 +20,7 @@ class ExperienceAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('user', 'reading_exp', 'speaking_exp', 'grammar_exp')
+            'fields': ('user', 'reading_exp', 'speaking_exp', 'grammar_exp', 'vocabulary_exp', 'writing_exp')
         }),
         ('Levels', {
             'fields': (),
@@ -36,7 +36,7 @@ class ExperienceAdmin(admin.ModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         if not request.user.has_perm('learning.change_experience'):
-            return self.readonly_fields + ('reading_exp', 'speaking_exp', 'grammar_exp')
+            return self.readonly_fields + ('reading_exp', 'speaking_exp', 'grammar_exp', 'vocabulary_exp', 'writing_exp')
         return self.readonly_fields
 
     def has_delete_permission(self, request, obj=None):

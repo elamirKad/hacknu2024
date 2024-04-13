@@ -8,6 +8,8 @@ class Experience(models.Model):
     reading_exp = models.IntegerField(default=0, validators=[MinValueValidator(0), MaxValueValidator(10000)])
     speaking_exp = models.IntegerField(default=0, validators=[MinValueValidator(0), MaxValueValidator(10000)])
     grammar_exp = models.IntegerField(default=0, validators=[MinValueValidator(0), MaxValueValidator(10000)])
+    vocabulary_exp = models.IntegerField(default=0, validators=[MinValueValidator(0), MaxValueValidator(10000)])
+    writing_exp = models.IntegerField(default=0, validators=[MinValueValidator(0), MaxValueValidator(10000)])
 
     LEVEL_TITLES = [
         'Жауынгер',  # Level 0
@@ -35,13 +37,13 @@ class Experience(models.Model):
     @property
     def total_level(self):
         """Calculate the total level based on all experience."""
-        lvl = self.calculate_level(self.reading_exp + self.speaking_exp + self.grammar_exp)
+        lvl = self.calculate_level(self.total_experience)
         return lvl, self.get_level_title(lvl)
 
     @property
     def total_experience(self):
         """Calculate the total experience from all categories."""
-        return self.reading_exp + self.speaking_exp + self.grammar_exp
+        return self.reading_exp + self.speaking_exp + self.grammar_exp + self.vocabulary_exp + self.writing_exp
 
     def __str__(self):
         return f'{self.user.username}'
