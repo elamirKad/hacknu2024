@@ -44,4 +44,4 @@ class Experience(models.Model):
         return self.reading_exp + self.speaking_exp + self.grammar_exp
 
     def __str__(self):
-        return f'{self.user.username} - Levels (Reading: {self.reading_level}, Speaking: {self.speaking_level}, Grammar: {self.grammar_level})'
+        return f'{self.user.username}'
