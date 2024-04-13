@@ -24,7 +24,7 @@ class ReadingQuestionSerializer(serializers.ModelSerializer):
 
     def get_solved(self, obj):
         user = self.context['request'].user
-        answer = ReadingAnswer.objects.filter(user=user, reading_question=obj).first()
+        answer = obj.answers.filter(user=user).first()
         return answer.correct if answer else False
 
 
@@ -37,7 +37,7 @@ class GrammarQuestionSerializer(serializers.ModelSerializer):
 
     def get_solved(self, obj):
         user = self.context['request'].user
-        answer = GrammarAnswer.objects.filter(user=user, grammar_question=obj).first()
+        answer = obj.answers.filter(user=user).first()
         return answer.correct if answer else False
 
 
@@ -50,5 +50,5 @@ class VocabularyQuestionSerializer(serializers.ModelSerializer):
 
     def get_solved(self, obj):
         user = self.context['request'].user
-        answer = VocabularyAnswer.objects.filter(user=user, vocabulary_question=obj).first()
+        answer = obj.answers.filter(user=user).first()
         return answer.correct if answer else False
