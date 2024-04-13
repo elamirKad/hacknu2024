@@ -1,10 +1,12 @@
 from django.http import JsonResponse
+from drf_yasg.openapi import Schema, TYPE_OBJECT, TYPE_INTEGER, TYPE_BOOLEAN, TYPE_STRING
 from drf_yasg.utils import swagger_auto_schema
+from rest_framework.decorators import permission_classes, api_view
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Experience, ReadingQuestion, GrammarQuestion, VocabularyQuestion
+from .models import Experience, ReadingQuestion, GrammarQuestion, VocabularyQuestion, GrammarAnswer, VocabularyAnswer
 from .serializers import ExperienceSerializer, ReadingQuestionSerializer, GrammarQuestionSerializer, VocabularyQuestionSerializer
 
 
@@ -33,11 +35,7 @@ class GetQuestionsByLevelView(APIView):
     def get(self, request, level):
         user = request.user
         response_data = {}
-
-        if level == 3:
-            level_filter = [1, 2]
-        else:
-            level_filter = [level]
+        level_filter = [level]
 
         reading_questions = ReadingQuestion.objects.filter(level__in=level_filter)
         grammar_questions = GrammarQuestion.objects.filter(level__in=level_filter)
@@ -96,3 +94,91 @@ class GetVocabularyQuestion(APIView):
             return Response(serializer.data)
         except VocabularyQuestion.DoesNotExist:
             return Response({"error": "Vocabulary question not found."}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@swagger_auto_schema(
+    operation_description="Submit a grammar question answer",
+    request_body=Schema(
+        type=TYPE_OBJECT,
+        properties={
+            'question_id': Schema(type=TYPE_INTEGER, description='The ID of the grammar question'),
+            'user_answer': Schema(type=TYPE_STRING, description='The user\'s answer to the question')
+        }
+    ),
+    responses={200: Schema(
+        type=TYPE_OBJECT,
+        properties={
+            'id': Schema(type=TYPE_INTEGER, description='The ID of the answer'),
+            'correct': Schema(type=TYPE_BOOLEAN, description='Whether the answer is correct')
+        }
+    )}
+)
+def submit_grammar_answer(request):
+    try:
+        question_id = request.data.get('question_id')
+        user_answer = request.data.get('user_answer')
+
+        question = GrammarQuestion.objects.get(id=question_id)
+        is_correct = question.correct_answer == user_answer
+
+        answer, created = GrammarAnswer.objects.update_or_create(
+            user=request.user,
+            grammar_question=question,
+            defaults={'user_answer': user_answer, 'correct': is_correct}
+        )
+
+        return JsonResponse({
+            'id': answer.id,
+            'correct': answer.correct
+        }, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
+
+    except GrammarQuestion.DoesNotExist:
+        return JsonResponse({'error': 'Grammar question not found.'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@swagger_auto_schema(
+    operation_description="Submit a vocabulary question answer",
+    request_body=Schema(
+        type=TYPE_OBJECT,
+        properties={
+            'question_id': Schema(type=TYPE_INTEGER, description='The ID of the vocabulary question'),
+            'user_answer': Schema(type=TYPE_STRING, description='The user\'s answer to the question')
+        }
+    ),
+    responses={200: Schema(
+        type=TYPE_OBJECT,
+        properties={
+            'id': Schema(type=TYPE_INTEGER, description='The ID of the answer'),
+            'correct': Schema(type=TYPE_BOOLEAN, description='Whether the answer is correct')
+        }
+    )}
+)
+def submit_vocabulary_answer(request):
+    try:
+        question_id = request.data.get('question_id')
+        user_answer = request.data.get('user_answer')
+
+        question = VocabularyQuestion.objects.get(id=question_id)
+        is_correct = question.correct_answer == user_answer
+
+        answer, created = VocabularyAnswer.objects.update_or_create(
+            user=request.user,
+            vocabulary_question=question,
+            defaults={'user_answer': user_answer, 'correct': is_correct}
+        )
+
+        return JsonResponse({
+            'id': answer.id,
+            'correct': answer.correct
+        }, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
+
+    except VocabularyQuestion.DoesNotExist:
+        return JsonResponse({'error': 'Vocabulary question not found.'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
