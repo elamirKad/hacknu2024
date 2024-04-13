@@ -32,7 +32,7 @@ class ReadingQuestionSerializer(serializers.ModelSerializer):
     def get_path(self, obj):
         request = self.context.get('request')
         if request is not None:
-            return reverse('get-reading-question', kwargs={'pk': obj.pk}, request=request)
+            return reverse('get-reading-question', kwargs={'pk': obj.pk})
         return None
 
 
@@ -52,7 +52,7 @@ class GrammarQuestionSerializer(serializers.ModelSerializer):
     def get_path(self, obj):
         request = self.context.get('request')
         if request is not None:
-            return reverse('get-grammar-question', kwargs={'pk': obj.pk}, request=request)
+            return reverse('get-grammar-question', kwargs={'pk': obj.pk})
         return None
 
 
@@ -72,5 +72,5 @@ class VocabularyQuestionSerializer(serializers.ModelSerializer):
     def get_path(self, obj):
         request = self.context.get('request')
         if request is not None:
-            return reverse('get-vocabulary-question', kwargs={'pk': obj.pk}, request=request)
+            return reverse('get-vocabulary-question', kwargs={'pk': obj.pk})
         return None
