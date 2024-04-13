@@ -26,7 +26,7 @@ class Experience(models.Model):
 
     def calculate_level(self, experience):
         """Calculate level based on experience."""
-        return experience // 5000
+        return experience // 1000
 
     def get_level_title(self, level):
         """Get the title corresponding to the level."""
@@ -128,3 +128,12 @@ class WritingPractice(models.Model):
 
     def __str__(self):
         return f"Writing Practice {self.id}"
+
+
+class Lecture(models.Model):
+    title = models.CharField(max_length=255)
+    text = models.TextField()
+    level = models.IntegerField(choices=((1, 'Level 1'), (2, 'Level 2'), (3, 'Level 3')))
+
+    def __str__(self):
+        return f"{self.title} ({self.level})"

@@ -6,8 +6,10 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Experience, ReadingQuestion, GrammarQuestion, VocabularyQuestion, GrammarAnswer, VocabularyAnswer
-from .serializers import ExperienceSerializer, ReadingQuestionSerializer, GrammarQuestionSerializer, VocabularyQuestionSerializer
+from .models import Experience, ReadingQuestion, GrammarQuestion, VocabularyQuestion, GrammarAnswer, VocabularyAnswer, \
+    Lecture
+from .serializers import ExperienceSerializer, ReadingQuestionSerializer, GrammarQuestionSerializer, \
+    VocabularyQuestionSerializer, LectureSerializer
 
 
 class UserExperienceView(APIView):
@@ -29,6 +31,20 @@ class UserExperienceView(APIView):
 class GetQuestionsByLevelView(APIView):
     permission_classes = [IsAuthenticated]
 
+    level_descriptions = {
+        1: 'Описание первого уровня',
+        2: 'Описание второго уровня',
+        3: 'Описание третьего уровня'
+    }
+
+    @staticmethod
+    def get_minimal_level_name(level):
+        return {
+            1: 'Жауынгер +',
+            2: 'Сарбаз +',
+            3: 'Шаруа +'
+        }.get(level, 'Unknown Level')
+
     @swagger_auto_schema(
         operation_description="Get questions by level: 1, 2, 3"
     )
@@ -40,10 +56,15 @@ class GetQuestionsByLevelView(APIView):
         reading_questions = ReadingQuestion.objects.filter(level__in=level_filter)
         grammar_questions = GrammarQuestion.objects.filter(level__in=level_filter)
         vocabulary_questions = VocabularyQuestion.objects.filter(level__in=level_filter)
+        lectures = Lecture.objects.filter(level__in=level_filter)
 
-        response_data['reading_questions'] = ReadingQuestionSerializer(reading_questions, many=True, context={'request': request}).data
-        response_data['grammar_questions'] = GrammarQuestionSerializer(grammar_questions, many=True, context={'request': request}).data
-        response_data['vocabulary_questions'] = VocabularyQuestionSerializer(vocabulary_questions, many=True, context={'request': request}).data
+        response_data['reading_task'] = ReadingQuestionSerializer(reading_questions, many=True, context={'request': request}).data
+        response_data['grammar_task'] = GrammarQuestionSerializer(grammar_questions, many=True, context={'request': request}).data
+        response_data['vocabulary_task'] = VocabularyQuestionSerializer(vocabulary_questions, many=True, context={'request': request}).data
+        response_data['lectures'] = LectureSerializer(lectures, many=True, context={'request': request}).data
+
+        response_data['level_description'] = self.level_descriptions.get(level)
+        response_data['minimal_level_name'] = self.get_minimal_level_name(level)
 
         return JsonResponse(response_data)
 

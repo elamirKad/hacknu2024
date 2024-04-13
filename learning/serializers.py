@@ -1,7 +1,8 @@
 from django.urls import reverse
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Experience, ReadingQuestion, GrammarQuestion, VocabularyQuestion, ReadingAnswer, GrammarAnswer, VocabularyAnswer
+from .models import Experience, ReadingQuestion, GrammarQuestion, VocabularyQuestion, ReadingAnswer, GrammarAnswer, \
+    VocabularyAnswer, Lecture
 
 
 class UserSerializerForStats(serializers.ModelSerializer):
@@ -82,3 +83,9 @@ class VocabularyQuestionSerializer(serializers.ModelSerializer):
         if request is not None:
             return request.build_absolute_uri(reverse('get-vocabulary-question', kwargs={'pk': obj.pk}))
         return None
+
+
+class LectureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Lecture
+        fields = ['id', 'title', 'text', 'level']
