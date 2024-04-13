@@ -1,4 +1,5 @@
 from django.http import JsonResponse
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -10,6 +11,10 @@ from .serializers import ExperienceSerializer, ReadingQuestionSerializer, Gramma
 class UserExperienceView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(
+        operation_description="Get the user's experience data",
+        responses={200: ExperienceSerializer()}
+    )
     def get(self, request):
         try:
             experience = Experience.objects.get(user=request.user)
@@ -22,6 +27,9 @@ class UserExperienceView(APIView):
 class GetQuestionsByLevelView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(
+        operation_description="Get questions by level: 1, 2, 3"
+    )
     def get(self, request, level):
         user = request.user
         response_data = {}
@@ -40,3 +48,51 @@ class GetQuestionsByLevelView(APIView):
         response_data['vocabulary_questions'] = VocabularyQuestionSerializer(vocabulary_questions, many=True, context={'request': request}).data
 
         return JsonResponse(response_data)
+
+
+class GetReadingQuestion(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_description="Get a reading question by ID",
+        responses={200: ReadingQuestionSerializer()}
+    )
+    def get(self, request, pk):
+        try:
+            question = ReadingQuestion.objects.get(pk=pk)
+            serializer = ReadingQuestionSerializer(question)
+            return Response(serializer.data)
+        except ReadingQuestion.DoesNotExist:
+            return Response({"error": "Reading question not found."}, status=status.HTTP_404_NOT_FOUND)
+
+
+class GetGrammarQuestion(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_description="Get a grammar question by ID",
+        responses={200: GrammarQuestionSerializer()}
+    )
+    def get(self, request, pk):
+        try:
+            question = GrammarQuestion.objects.get(pk=pk)
+            serializer = GrammarQuestionSerializer(question)
+            return Response(serializer.data)
+        except GrammarQuestion.DoesNotExist:
+            return Response({"error": "Grammar question not found."}, status=status.HTTP_404_NOT_FOUND)
+
+
+class GetVocabularyQuestion(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_description="Get a vocabulary question by ID",
+        responses={200: VocabularyQuestionSerializer()}
+    )
+    def get(self, request, pk):
+        try:
+            question = VocabularyQuestion.objects.get(pk=pk)
+            serializer = VocabularyQuestionSerializer(question)
+            return Response(serializer.data)
+        except VocabularyQuestion.DoesNotExist:
+            return Response({"error": "Vocabulary question not found."}, status=status.HTTP_404_NOT_FOUND)

@@ -1,3 +1,4 @@
+from django.urls import reverse
 from rest_framework import serializers
 from .models import Experience, ReadingQuestion, GrammarQuestion, VocabularyQuestion, ReadingAnswer, GrammarAnswer, VocabularyAnswer
 
@@ -17,6 +18,7 @@ class ExperienceSerializer(serializers.ModelSerializer):
 
 class ReadingQuestionSerializer(serializers.ModelSerializer):
     solved = serializers.SerializerMethodField()
+    path = serializers.SerializerMethodField()
 
     class Meta:
         model = ReadingQuestion
@@ -27,9 +29,16 @@ class ReadingQuestionSerializer(serializers.ModelSerializer):
         answer = ReadingAnswer.objects.filter(user=user, reading_question=obj).first()
         return answer.correct if answer else False
 
+    def get_path(self, obj):
+        request = self.context.get('request')
+        if request is not None:
+            return reverse('get-reading-question', kwargs={'pk': obj.pk}, request=request)
+        return None
+
 
 class GrammarQuestionSerializer(serializers.ModelSerializer):
     solved = serializers.SerializerMethodField()
+    path = serializers.SerializerMethodField()
 
     class Meta:
         model = GrammarQuestion
@@ -40,9 +49,16 @@ class GrammarQuestionSerializer(serializers.ModelSerializer):
         answer = GrammarAnswer.objects.filter(user=user, grammar_question=obj).first()
         return answer.correct if answer else False
 
+    def get_path(self, obj):
+        request = self.context.get('request')
+        if request is not None:
+            return reverse('get-grammar-question', kwargs={'pk': obj.pk}, request=request)
+        return None
+
 
 class VocabularyQuestionSerializer(serializers.ModelSerializer):
     solved = serializers.SerializerMethodField()
+    path = serializers.SerializerMethodField()
 
     class Meta:
         model = VocabularyQuestion
@@ -52,3 +68,9 @@ class VocabularyQuestionSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         answer = VocabularyAnswer.objects.filter(user=user, vocabulary_question=obj).first()
         return answer.correct if answer else False
+
+    def get_path(self, obj):
+        request = self.context.get('request')
+        if request is not None:
+            return reverse('get-vocabulary-question', kwargs={'pk': obj.pk}, request=request)
+        return None
