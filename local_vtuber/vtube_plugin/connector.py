@@ -19,9 +19,9 @@ class VTubeConnector:
         print(self.audio_processor)
 
     async def start(self):
-        await self.auth_manager.init_connection()
         await self.communicator.connect()
-        await self.parameter_manager.setup_custom_parameters()
+        await self.auth_manager.init_connection()
+        await self.parameter_manager.setup_custom_parameter()
 
     async def reauthenticate(self):
         await self.communicator.connect()

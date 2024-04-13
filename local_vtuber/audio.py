@@ -1,31 +1,22 @@
 import asyncio
+import json
 import queue
 import concurrent.futures
 import os
 import uuid
 from datetime import datetime
 
-import azure.cognitiveservices.speech as speechsdk
+import requests
 import websockets.exceptions
-from dotenv import load_dotenv
-from pydub import AudioSegment
-from pydub.playback import play
 
 from vtube_plugin.connector import VTubeConnector
 
 
 class AsyncSpeechSynthesizer:
     def __init__(self, connector: VTubeConnector = None):
-        load_dotenv()
-        self.speech_key = os.getenv("AZURE_API")
-        self.service_region = os.getenv("AZURE_REGION")
-        self.speech_config = speechsdk.SpeechConfig(subscription=self.speech_key, region=self.service_region)
-        self.speech_config.set_speech_synthesis_output_format(
-            speechsdk.SpeechSynthesisOutputFormat.Riff24Khz16BitMonoPcm)
-        # self.speech_config.speech_synthesis_voice_name = "en-US-AshleyNeural"
-        self.speech_config.speech_synthesis_voice_name = "en-US-JaneNeural"
+        self.api = "7X0G4XB-FAH4CHN-NY86S8M-53CC8X1"
         self.is_playing = False
-        self.playback_queue = queue.Queue()
+        self.playback_queue = asyncio.Queue()  # Changed to asyncio.Queue
         self.audio_generation_lock = asyncio.Lock()
         self.connector = connector
         print(self.connector, self.connector.audio_processor)
@@ -34,42 +25,55 @@ class AsyncSpeechSynthesizer:
         async with self.audio_generation_lock:
             unique_filename = f"{uuid.uuid4().hex}.wav"
             await self.speech_synthesis_to_wav_file(text, unique_filename)
-            self.playback_queue.put(unique_filename)
+            await self.playback_queue.put(unique_filename)  # Changed to async put
         if not self.is_playing:
             asyncio.create_task(self.play_audio_from_queue())
 
     async def play_audio_from_queue(self):
         try:
-            while True:
-                self.is_playing = True
-                file_path = self.playback_queue.get()
-                if file_path is None:
-                    break
+            self.is_playing = True
+            while not self.playback_queue.empty():
+                file_path = await self.playback_queue.get()  # Changed to async get
                 await self.connector.audio_processor.play_and_send_data(file_path)
                 self.playback_queue.task_done()
-                # os.remove(file_path)
-            self.is_playing = False
+                os.remove(file_path)
         except websockets.exceptions.ConnectionClosedError as e:
             print(f"Connection closed: {e}")
             await self.connector.reauthenticate()
-            await self.play_audio_from_queue()
+        finally:
+            self.is_playing = False
 
-    async def speech_synthesis_to_wav_file(self, text: str, file_name: str) -> None:
+    async def speech_synthesis_to_wav_file(self, text: str, file_name: str, gender: str = "female", audio_format: str = "wav") -> None:
         """Performs speech synthesis to a WAV file with adjustable pitch."""
 
-        file_config = speechsdk.audio.AudioOutputConfig(filename=file_name)
-        speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=self.speech_config, audio_config=file_config)
+        if gender == "male":
+            voice = "kk-KZ-DauletNeural"
+        elif gender == "female":
+            voice = "kk-KZ-AigulNeural"
+        else:
+            raise ValueError("Gender must be defined")
 
-        ssml = f"""
-        <speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">
-            <voice name="{self.speech_config.speech_synthesis_voice_name}">
-                <prosody>
-                    {text}
-                </prosody>
-            </voice>
-        </speak>
-        """
+        headers = {
+            "x-listnr-token": self.api,
+            "Content-Type": "application/json"
+        }
 
-        loop = asyncio.get_running_loop()
-        with concurrent.futures.ThreadPoolExecutor() as pool:
-            await loop.run_in_executor(pool, lambda: speech_synthesizer.speak_ssml_async(ssml).get())
+        base_url = "https://bff.listnr.tech/api/tts/v1/"
+        endpoint = base_url + "convert-text"
+
+        body = json.dumps({
+            "voice": voice,
+            "ssml": f"<speak><p>{text}</p></speak>",
+            "audioFormat": audio_format
+        })
+
+        response = requests.post(endpoint, headers=headers, data=body)
+        response_data = response.json()
+        print(response_data)
+
+        if 'url' in response_data:
+            audio_url = response_data['url']
+            audio_response = requests.get(audio_url)
+
+            with open(file_name, "wb") as audio_file:
+                audio_file.write(audio_response.content)
