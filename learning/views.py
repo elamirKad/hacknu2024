@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Experience, ReadingQuestion, GrammarQuestion, VocabularyQuestion, GrammarAnswer, VocabularyAnswer, \
     Lecture, Chat
-from .open import User, query_api
+from .open import User, query_api, analyze_dialogue
 from .serializers import ExperienceSerializer, ReadingQuestionSerializer, GrammarQuestionSerializer, \
     VocabularyQuestionSerializer, LectureSerializer
 
@@ -238,3 +238,40 @@ def send_text(request, chat_id):
 
     except Chat.DoesNotExist:
         return JsonResponse({'error': 'Chat not found'}, status=404)
+
+
+class CreateChatView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_description="Create a new chat",
+        request_body=Schema(
+            type=TYPE_OBJECT,
+            properties={
+                'user_id': Schema(type=TYPE_INTEGER, description='The ID of the user')
+            }
+        ),
+        responses={200: Schema(
+            type=TYPE_OBJECT,
+            properties={
+                'id': Schema(type=TYPE_INTEGER, description='The ID of the chat')
+            }
+        )}
+    )
+    def post(self, request):
+        user_id = request.data.get('user_id')
+        chat = Chat.objects.create(user_id=user_id)
+        return JsonResponse({'id': chat.id})
+
+
+class GenerateReportView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_description="Generate a report for the user"
+    )
+    def get(self, request, chat_id):
+        user = request.user
+        chat = User(id=chat_id, name="Эламир", surname="Кадыргалеев", age=20)
+        result = analyze_dialogue(chat)
+        return JsonResponse({"report": result})
