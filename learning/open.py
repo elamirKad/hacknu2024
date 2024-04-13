@@ -77,7 +77,7 @@ yft = YandexFreeTranslate(api='ios')
 def query_api(prompt_kk, user, use_context=True):
 
     if not os.path.exists(f'{user.id}.pickle'):
-        with open('../query_prompt.txt', 'r') as file:
+        with open('query_prompt.txt', 'r') as file:
             system_message_content = file.read()
         system_message_content = system_message_content \
             .replace('$$name$$', user.name) \
@@ -198,7 +198,7 @@ def analyze_dialogue(user):
         }
     }]
 
-    with open('../analyze_prompt.txt', 'r', encoding="utf-8") as file:
+    with open('analyze_prompt.txt', 'r', encoding="utf-8") as file:
         system_message_content = file.read()
 
     messages = [
