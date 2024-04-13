@@ -1,15 +1,23 @@
 from django.urls import reverse
 from rest_framework import serializers
+from rest_framework.authtoken.admin import User
 from .models import Experience, ReadingQuestion, GrammarQuestion, VocabularyQuestion, ReadingAnswer, GrammarAnswer, VocabularyAnswer
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email')
 
 
 class ExperienceSerializer(serializers.ModelSerializer):
     total_level = serializers.SerializerMethodField()
     total_experience = serializers.ReadOnlyField()
+    user_data = UserSerializer(source='user', read_only=True)
 
     class Meta:
         model = Experience
-        fields = ('reading_exp', 'speaking_exp', 'grammar_exp', 'vocabulary_exp', 'writing_exp', 'total_experience', 'total_level')
+        fields = ('user_data', 'reading_exp', 'speaking_exp', 'grammar_exp', 'vocabulary_exp', 'writing_exp', 'total_experience', 'total_level')
 
     def get_total_level(self, obj):
         level, title = obj.total_level
