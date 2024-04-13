@@ -22,7 +22,7 @@ class ReadingQuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ReadingQuestion
-        fields = ('id', 'text', 'audio_url', 'question', 'ideal_answer', 'level', 'solved')
+        fields = ('id', 'text', 'audio_url', 'question', 'ideal_answer', 'level', 'solved', 'path')
 
     def get_solved(self, obj):
         user = self.context['request'].user
@@ -42,7 +42,7 @@ class GrammarQuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = GrammarQuestion
-        fields = ('id', 'question', 'answers', 'correct_answer', 'level', 'solved')
+        fields = ('id', 'question', 'answers', 'correct_answer', 'level', 'solved', 'path')
 
     def get_solved(self, obj):
         user = self.context['request'].user
@@ -62,7 +62,7 @@ class VocabularyQuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = VocabularyQuestion
-        fields = ('id', 'question', 'answers', 'correct_answer', 'level', 'solved')
+        fields = ('id', 'question', 'answers', 'correct_answer', 'level', 'solved', 'path')
 
     def get_solved(self, obj):
         user = self.context['request'].user
