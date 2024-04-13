@@ -26,7 +26,7 @@ class Experience(models.Model):
 
     def calculate_level(self, experience):
         """Calculate level based on experience."""
-        return experience // 3000
+        return experience // 5000
 
     def get_level_title(self, level):
         """Get the title corresponding to the level."""
