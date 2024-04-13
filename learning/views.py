@@ -1,4 +1,5 @@
 from django.http import JsonResponse
+from drf_yasg import openapi
 from drf_yasg.openapi import Schema, TYPE_OBJECT, TYPE_INTEGER, TYPE_BOOLEAN, TYPE_STRING
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import permission_classes, api_view
@@ -7,7 +8,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Experience, ReadingQuestion, GrammarQuestion, VocabularyQuestion, GrammarAnswer, VocabularyAnswer, \
-    Lecture
+    Lecture, Chat
+from .open import User, query_api
 from .serializers import ExperienceSerializer, ReadingQuestionSerializer, GrammarQuestionSerializer, \
     VocabularyQuestionSerializer, LectureSerializer
 
@@ -203,3 +205,38 @@ def submit_vocabulary_answer(request):
         return JsonResponse({'error': 'Vocabulary question not found.'}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@swagger_auto_schema(
+    operation_description="Submit text to the chat API",
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'prompt_kk': openapi.Schema(type=openapi.TYPE_STRING, description='The prompt in Kazakh language'),
+        }
+    ),
+    responses={200: openapi.Response(
+        description="Response from the chat API",
+        schema=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'response': openapi.Schema(type=openapi.TYPE_STRING, description='The full response in Kazakh language'),
+            }
+        )
+    )}
+)
+def send_text(request, chat_id):
+    try:
+        chat = Chat.objects.get(id=chat_id)
+        user = User(id=chat_id, name="Эламир", surname="Кадыргалеев", age=20)
+        prompt_kk = request.POST.get('prompt_kk', '')
+        response_text = query_api(prompt_kk, user)
+        return JsonResponse({'response': response_text})
+
+    except Chat.DoesNotExist:
+        return JsonResponse({'error': 'Chat not found'}, status=404)
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

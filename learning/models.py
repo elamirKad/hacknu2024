@@ -137,3 +137,10 @@ class Lecture(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.level})"
+
+
+class Chat(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='chats')
+
+    def __str__(self):
+        return f"Chat {self.id} by {self.user.username}"
