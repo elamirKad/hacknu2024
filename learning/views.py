@@ -232,6 +232,7 @@ def send_text(request, chat_id):
         chat = Chat.objects.get(id=chat_id)
         user = User(id=chat_id, name="Эламир", surname="Кадыргалеев", age=20)
         prompt_kk = request.POST.get('prompt_kk', '')
+        print(prompt_kk)
         response_text = query_api(prompt_kk, user)
         return JsonResponse({'response': response_text})
 
