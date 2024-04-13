@@ -259,8 +259,8 @@ class CreateChatView(APIView):
         )}
     )
     def post(self, request):
-        user_id = request.data.get('user_id')
-        chat = Chat.objects.create(user_id=user_id)
+        user = request.user
+        chat = Chat.objects.create(user=user)
         return JsonResponse({'id': chat.id})
 
 
