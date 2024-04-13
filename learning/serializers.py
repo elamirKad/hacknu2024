@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Experience
+from .models import Experience, ReadingQuestion, GrammarQuestion, VocabularyQuestion, ReadingAnswer, GrammarAnswer, VocabularyAnswer
 
 
 class ExperienceSerializer(serializers.ModelSerializer):
@@ -13,3 +13,42 @@ class ExperienceSerializer(serializers.ModelSerializer):
     def get_total_level(self, obj):
         level, title = obj.total_level
         return {'level': level, 'title': title}
+
+
+class ReadingQuestionSerializer(serializers.ModelSerializer):
+    solved = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ReadingQuestion
+        fields = ('id', 'text', 'audio_url', 'question', 'ideal_answer', 'level', 'solved')
+
+    def get_solved(self, obj):
+        user = self.context['request'].user
+        answer = ReadingAnswer.objects.filter(user=user, reading_question=obj).first()
+        return answer.correct if answer else False
+
+
+class GrammarQuestionSerializer(serializers.ModelSerializer):
+    solved = serializers.SerializerMethodField()
+
+    class Meta:
+        model = GrammarQuestion
+        fields = ('id', 'question', 'answers', 'correct_answer', 'level', 'solved')
+
+    def get_solved(self, obj):
+        user = self.context['request'].user
+        answer = GrammarAnswer.objects.filter(user=user, grammar_question=obj).first()
+        return answer.correct if answer else False
+
+
+class VocabularyQuestionSerializer(serializers.ModelSerializer):
+    solved = serializers.SerializerMethodField()
+
+    class Meta:
+        model = VocabularyQuestion
+        fields = ('id', 'question', 'answers', 'correct_answer', 'level', 'solved')
+
+    def get_solved(self, obj):
+        user = self.context['request'].user
+        answer = VocabularyAnswer.objects.filter(user=user, vocabulary_question=obj).first()
+        return answer.correct if answer else False
