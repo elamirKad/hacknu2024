@@ -76,7 +76,7 @@ class GetGrammarQuestion(APIView):
     def get(self, request, pk):
         try:
             question = GrammarQuestion.objects.get(pk=pk)
-            serializer = GrammarQuestionSerializer(question)
+            serializer = GrammarQuestionSerializer(question, context={'request': request})
             return Response(serializer.data)
         except GrammarQuestion.DoesNotExist:
             return Response({"error": "Grammar question not found."}, status=status.HTTP_404_NOT_FOUND)
