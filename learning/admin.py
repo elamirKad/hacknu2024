@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Experience, ReadingQuestion, GrammarQuestion, VocabularyQuestion, ReadingAnswer, GrammarAnswer, VocabularyAnswer, GPTReport, SpeakingPractice, WritingPractice
+from .models import Experience, ReadingQuestion, GrammarQuestion, VocabularyQuestion, ReadingAnswer, GrammarAnswer, \
+    VocabularyAnswer, GPTReport, SpeakingPractice, WritingPractice, Lecture
 
 
 @admin.register(Experience)
@@ -55,3 +56,4 @@ admin.site.register(VocabularyAnswer)
 admin.site.register(GPTReport)
 admin.site.register(SpeakingPractice)
 admin.site.register(WritingPractice)
+admin.site.register(Lecture)
