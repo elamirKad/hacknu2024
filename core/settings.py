@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     "jwt_auth",
     'corsheaders',
+    "learning",
 ]
 
 MIDDLEWARE = [
