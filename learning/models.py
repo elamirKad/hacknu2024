@@ -95,8 +95,8 @@ class ReadingAnswer(models.Model):
 
 
 class GrammarAnswer(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    grammar_question = models.ForeignKey(GrammarQuestion, related_name='user_answers', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
+    grammar_question = models.ForeignKey(GrammarQuestion, related_name='user_answers', null=True, on_delete=models.CASCADE)
     user_answer = models.TextField()
     correct = models.BooleanField()
 
@@ -105,8 +105,8 @@ class GrammarAnswer(models.Model):
 
 
 class VocabularyAnswer(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    vocabulary_question = models.ForeignKey(VocabularyQuestion, related_name='user_answers', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    vocabulary_question = models.ForeignKey(VocabularyQuestion, related_name='user_answers', on_delete=models.CASCADE, null=True)
     user_answer = models.TextField()
     correct = models.BooleanField()
 
