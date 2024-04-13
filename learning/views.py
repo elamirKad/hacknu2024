@@ -237,6 +237,3 @@ def send_text(request, chat_id):
 
     except Chat.DoesNotExist:
         return JsonResponse({'error': 'Chat not found'}, status=404)
-
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
