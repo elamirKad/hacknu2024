@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from .models import Experience, ReadingQuestion, GrammarQuestion, VocabularyQuestion, ReadingAnswer, GrammarAnswer, VocabularyAnswer
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializerForStats(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'email')
@@ -13,7 +13,7 @@ class UserSerializer(serializers.ModelSerializer):
 class ExperienceSerializer(serializers.ModelSerializer):
     total_level = serializers.SerializerMethodField()
     total_experience = serializers.ReadOnlyField()
-    user_data = UserSerializer(source='user', read_only=True)
+    user_data = UserSerializerForStats(source='user', read_only=True)
 
     class Meta:
         model = Experience
