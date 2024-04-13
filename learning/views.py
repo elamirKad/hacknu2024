@@ -8,10 +8,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Experience, ReadingQuestion, GrammarQuestion, VocabularyQuestion, GrammarAnswer, VocabularyAnswer, \
-    Lecture, Chat
+    Lecture, Chat, GPTReport
 from .open import User, query_api, analyze_dialogue
 from .serializers import ExperienceSerializer, ReadingQuestionSerializer, GrammarQuestionSerializer, \
-    VocabularyQuestionSerializer, LectureSerializer
+    VocabularyQuestionSerializer, LectureSerializer, GPTReportSerializer
 
 
 class UserExperienceView(APIView):
@@ -274,4 +274,18 @@ class GenerateReportView(APIView):
         user = request.user
         chat = User(id=chat_id, name="Эламир", surname="Кадыргалеев", age=20)
         result = analyze_dialogue(chat)
+        new_report = GPTReport(user=user, report_data=result)
+        new_report.save()
         return JsonResponse({"report": result})
+
+
+class ListUserReportsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_description="Get all GPT reports for the logged-in user"
+    )
+    def get(self, request):
+        reports = GPTReport.objects.filter(user=request.user)
+        serializer = GPTReportSerializer(reports, many=True)
+        return Response(serializer.data)

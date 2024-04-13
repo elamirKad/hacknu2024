@@ -73,16 +73,11 @@ class VocabularyQuestion(models.Model):
 
 class GPTReport(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    comment = models.TextField()
-    reading_exp = models.IntegerField(default=0)
-    speaking_exp = models.IntegerField(default=0)
-    grammar_exp = models.IntegerField(default=0)
-    vocabulary_exp = models.IntegerField(default=0)
-    writing_exp = models.IntegerField(default=0)
+    report_data = models.JSONField(null=True)
     datetime = models.DateTimeField(auto_now_add=True, null=True)
 
     def __str__(self):
-        return f"Report {self.id} - Comment: {self.comment[:50]}..."
+        return f"Report {self.id} - User: {self.user.username}"
 
 
 class ReadingAnswer(models.Model):

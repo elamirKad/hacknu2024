@@ -2,7 +2,7 @@ from django.urls import reverse
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import Experience, ReadingQuestion, GrammarQuestion, VocabularyQuestion, ReadingAnswer, GrammarAnswer, \
-    VocabularyAnswer, Lecture
+    VocabularyAnswer, Lecture, GPTReport
 
 
 class UserSerializerForStats(serializers.ModelSerializer):
@@ -89,3 +89,9 @@ class LectureSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lecture
         fields = ['id', 'title', 'text', 'level']
+
+
+class GPTReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GPTReport
+        fields = ['id', 'report_data', 'datetime']
