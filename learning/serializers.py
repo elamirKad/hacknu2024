@@ -37,7 +37,7 @@ class GrammarQuestionSerializer(serializers.ModelSerializer):
 
     def get_solved(self, obj):
         user = self.context['request'].user
-        answer = obj.answers.filter(user=user).first()
+        answer = obj.user_answers.filter(user=user).first()
         return answer.correct if answer else False
 
 
@@ -50,5 +50,5 @@ class VocabularyQuestionSerializer(serializers.ModelSerializer):
 
     def get_solved(self, obj):
         user = self.context['request'].user
-        answer = obj.answers.filter(user=user).first()
+        answer = obj.user_answers.filter(user=user).first()
         return answer.correct if answer else False
