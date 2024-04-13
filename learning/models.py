@@ -68,7 +68,7 @@ class VocabularyQuestion(models.Model):
     question = models.TextField()
     answers = models.JSONField()
     correct_answer = models.CharField(max_length=255)
-    level = models.IntegerField(choices=((1, 'Level 1'), (2, 'Level 2'), (3, 'Level 3'))
+    level = models.IntegerField(choices=((1, 'Level 1'), (2, 'Level 2'), (3, 'Level 3')))
 
 
 class GPTReport(models.Model):
