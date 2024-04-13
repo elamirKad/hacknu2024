@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Experience
+from .models import Experience, ReadingQuestion, GrammarQuestion, VocabularyQuestion, ReadingAnswer, GrammarAnswer, VocabularyAnswer, GPTReport, SpeakingPractice, WritingPractice
 
 
 @admin.register(Experience)
@@ -44,3 +44,14 @@ class ExperienceAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return request.user.is_superuser
+
+
+admin.site.register(ReadingQuestion)
+admin.site.register(GrammarQuestion)
+admin.site.register(VocabularyQuestion)
+admin.site.register(ReadingAnswer)
+admin.site.register(GrammarAnswer)
+admin.site.register(VocabularyAnswer)
+admin.site.register(GPTReport)
+admin.site.register(SpeakingPractice)
+admin.site.register(WritingPractice)

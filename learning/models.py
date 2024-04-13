@@ -47,3 +47,78 @@ class Experience(models.Model):
 
     def __str__(self):
         return f'{self.user.username}'
+
+
+class ReadingQuestion(models.Model):
+    text = models.TextField()
+    audio_url = models.URLField(blank=True, null=True)
+    question = models.TextField()
+    ideal_answer = models.TextField()
+    level = models.IntegerField(choices=((1, 'Level 1'), (2, 'Level 2')))
+
+
+class GrammarQuestion(models.Model):
+    question = models.TextField()
+    answers = models.JSONField()
+    correct_answer = models.CharField(max_length=255)
+    level = models.IntegerField(choices=((1, 'Level 1'), (2, 'Level 2')))
+
+
+class VocabularyQuestion(models.Model):
+    question = models.TextField()
+    answers = models.JSONField()
+    correct_answer = models.CharField(max_length=255)
+    level = models.IntegerField(choices=((1, 'Level 1'), (2, 'Level 2')))
+
+
+class GPTReport(models.Model):
+    comment = models.TextField()
+    reading_exp = models.IntegerField(default=0)
+    speaking_exp = models.IntegerField(default=0)
+    grammar_exp = models.IntegerField(default=0)
+    vocabulary_exp = models.IntegerField(default=0)
+    writing_exp = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"Report {self.id} - Comment: {self.comment[:50]}..."
+
+
+class ReadingAnswer(models.Model):
+    user_answer = models.TextField()
+    gpt_report = models.ForeignKey(GPTReport, on_delete=models.CASCADE)
+    correct = models.BooleanField()
+
+    def __str__(self):
+        return f"Reading Answer {self.id} - {'Correct' if self.correct else 'Incorrect'}"
+
+
+class GrammarAnswer(models.Model):
+    user_answer = models.TextField()
+    correct = models.BooleanField()
+
+    def __str__(self):
+        return f"Grammar Answer {self.id} - {'Correct' if self.correct else 'Incorrect'}"
+
+
+class VocabularyAnswer(models.Model):
+    user_answer = models.TextField()
+    correct = models.BooleanField()
+
+    def __str__(self):
+        return f"Vocabulary Answer {self.id} - {'Correct' if self.correct else 'Incorrect'}"
+
+
+class SpeakingPractice(models.Model):
+    history = models.TextField()
+    gpt_report = models.ForeignKey('GPTReport', on_delete=models.CASCADE, related_name='speaking_practices')
+
+    def __str__(self):
+        return f"Speaking Practice {self.id}"
+
+
+class WritingPractice(models.Model):
+    history = models.TextField()
+    gpt_report = models.ForeignKey('GPTReport', on_delete=models.CASCADE, related_name='writing_practices')
+
+    def __str__(self):
+        return f"Writing Practice {self.id}"
