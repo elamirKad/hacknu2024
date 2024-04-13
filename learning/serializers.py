@@ -1,6 +1,6 @@
 from django.urls import reverse
 from rest_framework import serializers
-from rest_framework.authtoken.admin import User
+from django.contrib.auth.models import User
 from .models import Experience, ReadingQuestion, GrammarQuestion, VocabularyQuestion, ReadingAnswer, GrammarAnswer, VocabularyAnswer
 
 
