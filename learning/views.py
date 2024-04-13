@@ -60,7 +60,7 @@ class GetReadingQuestion(APIView):
     def get(self, request, pk):
         try:
             question = ReadingQuestion.objects.get(pk=pk)
-            serializer = ReadingQuestionSerializer(question)
+            serializer = ReadingQuestionSerializer(question, context={'request': request})
             return Response(serializer.data)
         except ReadingQuestion.DoesNotExist:
             return Response({"error": "Reading question not found."}, status=status.HTTP_404_NOT_FOUND)
@@ -92,7 +92,7 @@ class GetVocabularyQuestion(APIView):
     def get(self, request, pk):
         try:
             question = VocabularyQuestion.objects.get(pk=pk)
-            serializer = VocabularyQuestionSerializer(question)
+            serializer = VocabularyQuestionSerializer(question, context={'request': request})
             return Response(serializer.data)
         except VocabularyQuestion.DoesNotExist:
             return Response({"error": "Vocabulary question not found."}, status=status.HTTP_404_NOT_FOUND)
