@@ -84,8 +84,8 @@ class GPTReport(models.Model):
 
 
 class ReadingAnswer(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    reading_question = models.ForeignKey(ReadingQuestion, related_name='answers', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    reading_question = models.ForeignKey(ReadingQuestion, related_name='answers', on_delete=models.CASCADE, null=True)
     user_answer = models.TextField()
     gpt_report = models.ForeignKey(GPTReport, on_delete=models.CASCADE)
     correct = models.BooleanField()
