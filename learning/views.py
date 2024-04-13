@@ -26,9 +26,14 @@ class GetQuestionsByLevelView(APIView):
         user = request.user
         response_data = {}
 
-        reading_questions = ReadingQuestion.objects.filter(level__lte=level if level != 3 else 3)
-        grammar_questions = GrammarQuestion.objects.filter(level__lte=level if level != 3 else 3)
-        vocabulary_questions = VocabularyQuestion.objects.filter(level__lte=level if level != 3 else 3)
+        if level == 3:
+            level_filter = [1, 2]
+        else:
+            level_filter = [level]
+
+        reading_questions = ReadingQuestion.objects.filter(level__in=level_filter)
+        grammar_questions = GrammarQuestion.objects.filter(level__in=level_filter)
+        vocabulary_questions = VocabularyQuestion.objects.filter(level__in=level_filter)
 
         response_data['reading_questions'] = ReadingQuestionSerializer(reading_questions, many=True, context={'request': request}).data
         response_data['grammar_questions'] = GrammarQuestionSerializer(grammar_questions, many=True, context={'request': request}).data
