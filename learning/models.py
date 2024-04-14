@@ -49,26 +49,42 @@ class Experience(models.Model):
         return f'{self.user.username}'
 
 
-class ReadingQuestion(models.Model):
+class Lessons(models.Model):
+    level = models.IntegerField(choices=((1, 'Level 1'), (2, 'Level 2'), (3, 'Level 3')))
+    markdown = models.TextField()
+
+
+class Tasks(models.Model):
+    lesson = models.ForeignKey(Lessons, on_delete=models.CASCADE)
+    question = models.TextField()
+    answers = models.JSONField()
+    correct_answer = models.TextField()
+
+
+class TaskAnswer(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    task = models.ForeignKey(Tasks, on_delete=models.CASCADE)
+    answer = models.TextField()
+    correct = models.BooleanField(default=False)
+
+
+class Reading(models.Model):
     text = models.TextField()
-    audio_url = models.URLField(blank=True, null=True)
-    question = models.TextField()
-    ideal_answer = models.TextField()
+    title = models.CharField(max_length=255)
+    description = models.TextField()
     level = models.IntegerField(choices=((1, 'Level 1'), (2, 'Level 2'), (3, 'Level 3')))
 
 
-class GrammarQuestion(models.Model):
+class ReadingQuestion(models.Model):
+    reading = models.ForeignKey(Reading, on_delete=models.CASCADE)
     question = models.TextField()
-    answers = models.JSONField()
-    correct_answer = models.CharField(max_length=255)
-    level = models.IntegerField(choices=((1, 'Level 1'), (2, 'Level 2'), (3, 'Level 3')))
 
 
-class VocabularyQuestion(models.Model):
-    question = models.TextField()
-    answers = models.JSONField()
-    correct_answer = models.CharField(max_length=255)
-    level = models.IntegerField(choices=((1, 'Level 1'), (2, 'Level 2'), (3, 'Level 3')))
+class ReadingAnswer(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    reading_question = models.ForeignKey(ReadingQuestion, on_delete=models.CASCADE)
+    answer = models.TextField()
+    correct = models.BooleanField(default=False)
 
 
 class GPTReport(models.Model):
@@ -78,62 +94,6 @@ class GPTReport(models.Model):
 
     def __str__(self):
         return f"Report {self.id} - User: {self.user.username}"
-
-
-class ReadingAnswer(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    reading_question = models.ForeignKey(ReadingQuestion, related_name='answers', on_delete=models.CASCADE, null=True)
-    user_answer = models.TextField()
-    gpt_report = models.ForeignKey(GPTReport, on_delete=models.CASCADE)
-    correct = models.BooleanField()
-
-    def __str__(self):
-        return f"Reading Answer {self.id} - {'Correct' if self.correct else 'Incorrect'}"
-
-
-class GrammarAnswer(models.Model):
-    user = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
-    grammar_question = models.ForeignKey(GrammarQuestion, related_name='user_answers', null=True, on_delete=models.CASCADE)
-    user_answer = models.TextField()
-    correct = models.BooleanField()
-
-    def __str__(self):
-        return f"Grammar Answer {self.id} - {'Correct' if self.correct else 'Incorrect'}"
-
-
-class VocabularyAnswer(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    vocabulary_question = models.ForeignKey(VocabularyQuestion, related_name='user_answers', on_delete=models.CASCADE, null=True)
-    user_answer = models.TextField()
-    correct = models.BooleanField()
-
-    def __str__(self):
-        return f"Vocabulary Answer {self.id} - {'Correct' if self.correct else 'Incorrect'}"
-
-
-class SpeakingPractice(models.Model):
-    history = models.TextField()
-    gpt_report = models.ForeignKey('GPTReport', on_delete=models.CASCADE, related_name='speaking_practices')
-
-    def __str__(self):
-        return f"Speaking Practice {self.id}"
-
-
-class WritingPractice(models.Model):
-    history = models.TextField()
-    gpt_report = models.ForeignKey('GPTReport', on_delete=models.CASCADE, related_name='writing_practices')
-
-    def __str__(self):
-        return f"Writing Practice {self.id}"
-
-
-class Lecture(models.Model):
-    title = models.CharField(max_length=255)
-    text = models.TextField()
-    level = models.IntegerField(choices=((1, 'Level 1'), (2, 'Level 2'), (3, 'Level 3')))
-
-    def __str__(self):
-        return f"{self.title} ({self.level})"
 
 
 class Chat(models.Model):
