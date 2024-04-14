@@ -1,3 +1,4 @@
+import requests
 from django.db import transaction
 from django.http import JsonResponse
 from drf_yasg import openapi
@@ -58,6 +59,10 @@ def send_text(request, chat_id):
         prompt_kk = request.data.get('prompt_kk')
         print(prompt_kk)
         response_text = query_api(user, prompt_kk)
+
+        url = "https://7a68-178-91-253-72.ngrok-free.app/synthesize/"
+        data = {"text": response_text}
+        requests.post(url, json=data)
         return JsonResponse({'response': response_text})
 
     except Chat.DoesNotExist:
