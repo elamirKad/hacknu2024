@@ -181,9 +181,12 @@ class ReadingDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, id):
-        questions = ReadingQuestion.objects.filter(reading__id=id)
-        serializer = ReadingQuestionSerializer(questions, many=True)
-        return Response(serializer.data)
+        try:
+            reading = Reading.objects.get(id=id)
+            serializer = ReadingSerializer(reading)
+            return Response(serializer.data)
+        except Reading.DoesNotExist:
+            return Response({'message': 'Reading not found'}, status=404)
 
 
 class ReadingAnswerView(APIView):

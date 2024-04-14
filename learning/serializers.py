@@ -48,16 +48,18 @@ class TaskAnswerSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'task', 'answer', 'correct']
 
 
-class ReadingSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Reading
-        fields = ['id', 'text_en', 'text_kz', 'title', 'description', 'level']
-
-
 class ReadingQuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReadingQuestion
-        fields = ['id', 'reading', 'question_en', 'question_kz']
+        fields = ['id', 'question_en', 'question_kz']
+
+
+class ReadingSerializer(serializers.ModelSerializer):
+    questions = ReadingQuestionSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Reading
+        fields = ['id', 'text_en', 'text_kz', 'title', 'description', 'level', 'questions']
 
 
 class ReadingAnswerSerializer(serializers.ModelSerializer):
