@@ -196,7 +196,7 @@ class ReadingAnswerView(APIView):
         questions_en_list = [questions_en.get(id) for id in question_ids]
         readings_texts_list = [readings_texts.get(id) for id in question_ids]
 
-        api_result = check_reading_answers(answers_kk, questions_en_list, readings_texts_list)
+        api_result = check_reading_answers(answers_kk, questions_en_list, readings_texts_list[0])
 
         try:
             with transaction.atomic():
