@@ -13,6 +13,7 @@ from .models import Experience, ReadingQuestion, Chat, GPTReport, Lessons, TaskA
 from .open import User, query_api, analyze_dialogue, check_reading_answers
 from .serializers import ExperienceSerializer, GPTReportSerializer, LessonsSerializer, TasksSerializer, \
     ReadingSerializer, ReadingQuestionSerializer
+from .tasks import post_text_to_service
 
 
 class UserExperienceView(APIView):
@@ -62,7 +63,7 @@ def send_text(request, chat_id):
 
         url = "https://7a68-178-91-253-72.ngrok-free.app/synthesize/"
         data = {"text": response_text}
-        requests.post(url, json=data)
+        post_text_to_service.delay(url, data)
         return JsonResponse({'response': response_text})
 
     except Chat.DoesNotExist:

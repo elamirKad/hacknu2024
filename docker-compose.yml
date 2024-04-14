@@ -21,8 +21,30 @@ services:
       - "8000:8000"
     depends_on:
       - db
+      - redis
     env_file:
       - .env
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  celery:
+    build: .
+    command: [ "celery", "-A", "core", "worker", "--loglevel=info" ]
+    volumes:
+      - .:/code
+    depends_on:
+      - redis
+
+  celerybeat:
+    build: .
+    command: [ "celery", "-A", "core", "beat", "--loglevel=info", "--scheduler", "django_celery_beat.schedulers:DatabaseScheduler" ]
+    volumes:
+      - .:/code
+    depends_on:
+      - redis
 
 volumes:
   postgres_data:
