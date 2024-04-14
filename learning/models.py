@@ -77,7 +77,7 @@ class Reading(models.Model):
 
 
 class ReadingQuestion(models.Model):
-    reading = models.ForeignKey(Reading, on_delete=models.CASCADE, null=True)
+    reading = models.ForeignKey(Reading, on_delete=models.CASCADE, null=True, related_name='questions')
     question_en = models.TextField(null=True)
     question_kz = models.TextField(null=True)
 
