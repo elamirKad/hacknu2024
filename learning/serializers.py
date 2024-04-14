@@ -37,7 +37,7 @@ class TasksSerializer(serializers.ModelSerializer):
 
 
 class LessonsSerializer(serializers.ModelSerializer):
-    tasks = TasksSerializer(many=True, read_only=True, source='tasks')
+    tasks = TasksSerializer(many=True, read_only=True)
 
     class Meta:
         model = Lessons
