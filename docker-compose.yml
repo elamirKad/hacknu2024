@@ -37,6 +37,8 @@ services:
       - .:/code
     depends_on:
       - redis
+    env_file:
+      - .env
 
   celerybeat:
     build: .
@@ -45,6 +47,8 @@ services:
       - .:/code
     depends_on:
       - redis
+    env_file:
+      - .env
 
 volumes:
   postgres_data:
