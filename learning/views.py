@@ -1,6 +1,9 @@
+import os
+
 import requests
 from django.db import transaction
 from django.http import JsonResponse
+from django.utils.timezone import now
 from drf_yasg import openapi
 from drf_yasg.openapi import Schema, TYPE_OBJECT, TYPE_INTEGER, TYPE_BOOLEAN, TYPE_STRING
 from drf_yasg.utils import swagger_auto_schema
@@ -9,6 +12,8 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+
+from core.settings import MEDIA_ROOT
 from .models import Experience, ReadingQuestion, Chat, GPTReport, Lessons, TaskAnswer, Tasks, Reading, ReadingAnswer
 from .open import User, query_api, analyze_dialogue, check_reading_answers
 from .serializers import ExperienceSerializer, GPTReportSerializer, LessonsSerializer, TasksSerializer, \
@@ -246,3 +251,38 @@ class ReadingAnswerView(APIView):
             return Response({'error': 'Failed to save reading answers. ' + str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response(api_result)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@swagger_auto_schema(
+    operation_description="Submit an audio response"
+)
+def upload_audio(request, chat_id):
+    try:
+        audio_file = request.FILES.get('audio_file')
+        if not audio_file:
+            return JsonResponse({'error': 'No audio file provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+        timestamp = now().strftime("%Y%m%d%H%M%S")
+        user_id = request.user.id
+        filename = f'audio_{user_id}_{timestamp}.mp3'
+
+        file_path = os.path.join(MEDIA_ROOT, filename)
+        print(file_path)
+        with open(file_path, 'wb+') as destination:
+            for chunk in audio_file.chunks():
+                destination.write(chunk)
+
+        chat = Chat.objects.get(id=chat_id)
+        user = User(id=chat_id, name="Эламир", surname="Кадыргалеев", age=20)
+        response_text = query_api(user, path_to_audio=file_path)
+        print(response_text)
+
+        url = "https://7a68-178-91-253-72.ngrok-free.app/synthesize/"
+        data = {"text": response_text}
+        post_text_to_service.delay(url, data)
+        return JsonResponse({'response': response_text})
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import UserExperienceView, send_text, CreateChatView, GenerateReportView, ListUserReportsView, \
-    LearningProgramView, ReadingListView, ReadingDetailView, ReadingAnswerView, LessonDetailView, TaskAnswerView
+    LearningProgramView, ReadingListView, ReadingDetailView, ReadingAnswerView, LessonDetailView, TaskAnswerView, upload_audio
 
 urlpatterns = [
     path('experience/', UserExperienceView.as_view(), name='user-experience'),
@@ -14,4 +14,5 @@ urlpatterns = [
     path('reading/', ReadingListView.as_view(), name='learning-reading'),
     path('reading/<int:id>/', ReadingDetailView.as_view(), name='learning-reading-detail'),
     path('reading/task/', ReadingAnswerView.as_view(), name='learning-reading-answer'),
+    path('chat/audio/<int:chat_id>', upload_audio, name='upload-audio'),
 ]
