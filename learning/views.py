@@ -259,30 +259,26 @@ class ReadingAnswerView(APIView):
     operation_description="Submit an audio response"
 )
 def upload_audio(request, chat_id):
-    try:
-        audio_file = request.FILES.get('audio_file')
-        if not audio_file:
-            return JsonResponse({'error': 'No audio file provided'}, status=status.HTTP_400_BAD_REQUEST)
+    audio_file = request.FILES.get('audio_file')
+    if not audio_file:
+        return JsonResponse({'error': 'No audio file provided'}, status=status.HTTP_400_BAD_REQUEST)
 
-        timestamp = now().strftime("%Y%m%d%H%M%S")
-        user_id = request.user.id
-        filename = f'audio_{user_id}_{timestamp}.mp3'
+    timestamp = now().strftime("%Y%m%d%H%M%S")
+    user_id = request.user.id
+    filename = f'audio_{user_id}_{timestamp}.mp3'
 
-        file_path = os.path.join(MEDIA_ROOT, filename)
-        print(file_path)
-        with open(file_path, 'wb+') as destination:
-            for chunk in audio_file.chunks():
-                destination.write(chunk)
+    file_path = os.path.join(MEDIA_ROOT, filename)
+    print(file_path)
+    with open(file_path, 'wb+') as destination:
+        for chunk in audio_file.chunks():
+            destination.write(chunk)
 
-        chat = Chat.objects.get(id=chat_id)
-        user = User(id=chat_id, name="Эламир", surname="Кадыргалеев", age=20)
-        response_text = query_api(user, path_to_audio=file_path)
-        print(response_text)
+    chat = Chat.objects.get(id=chat_id)
+    user = User(id=chat_id, name="Эламир", surname="Кадыргалеев", age=20)
+    response_text = query_api(user, path_to_audio=file_path)
+    print(response_text)
 
-        url = "https://7a68-178-91-253-72.ngrok-free.app/synthesize/"
-        data = {"text": response_text}
-        post_text_to_service.delay(url, data)
-        return JsonResponse({'response': response_text})
-
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    url = "https://7a68-178-91-253-72.ngrok-free.app/synthesize/"
+    data = {"text": response_text}
+    post_text_to_service.delay(url, data)
+    return JsonResponse({'response': response_text})
