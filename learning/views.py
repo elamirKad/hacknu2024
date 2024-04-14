@@ -123,7 +123,8 @@ class LearningProgramView(APIView):
 
         tasks_done = TaskAnswer.objects.filter(
             task__lesson__level=level,
-            user=request.user
+            user=request.user,
+            correct=True
         ).count()
         tasks_total = Tasks.objects.filter(lesson__level=level).count()
 
