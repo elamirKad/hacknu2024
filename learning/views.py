@@ -182,7 +182,7 @@ class ReadingDetailView(APIView):
 
     def get(self, request, id):
         try:
-            reading = Reading.objects.get(id=id)
+            reading = Reading.objects.prefetch_related('questions').get(id=id)
             serializer = ReadingSerializer(reading)
             return Response(serializer.data)
         except Reading.DoesNotExist:
