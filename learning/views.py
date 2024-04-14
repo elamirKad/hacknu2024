@@ -106,6 +106,16 @@ class GenerateReportView(APIView):
         result = analyze_dialogue(chat)
         new_report = GPTReport(user=user, report_data=result)
         new_report.save()
+
+        vocabulary_score = result.get('vocabulary', {}).get('score', 0)
+        communication_score = result.get('communication_effectiveness', {}).get('score', 0)
+        contextual_score = result.get('contextual_understanding', {}).get('score', 0)
+
+        experience, created = Experience.objects.get_or_create(user=user)
+        experience.vocabulary_exp += vocabulary_score * 10
+        experience.speaking_exp += communication_score * 10
+        experience.grammar_exp += contextual_score * 10
+        experience.save()
         return JsonResponse({"report": result})
 
 
@@ -159,12 +169,20 @@ class TaskAnswerView(APIView):
         provided_answer = request.data.get('answer')
         correct = provided_answer == task.correct_answer
 
-        TaskAnswer.objects.create(
-            user=request.user,
-            task=task,
-            answer=provided_answer,
-            correct=correct
-        )
+        with transaction.atomic():
+            TaskAnswer.objects.create(
+                user=request.user,
+                task=task,
+                answer=provided_answer,
+                correct=correct
+            )
+
+            if correct:
+                experience, created = Experience.objects.get_or_create(user=request.user)
+                experience.reading_exp += 200
+                experience.grammar_exp += 500
+                experience.vocabulary_exp += 200
+                experience.save()
 
         return Response({'correct': correct})
 
@@ -209,14 +227,21 @@ class ReadingAnswerView(APIView):
 
         try:
             with transaction.atomic():
+                experience, created = Experience.objects.get_or_create(user=request.user)
                 for i, answer_data in enumerate(request.data.get('answers', [])):
                     question_id = answer_data.get('id')
+                    score = api_result['scores'][i]
                     ReadingAnswer.objects.create(
                         user=request.user,
                         reading_question_id=question_id,
                         answer=answers_kk[i],
                         correct=api_result['scores'][i]
                     )
+
+                    if score == 1:
+                        experience.reading_exp += 500
+                        experience.writing_exp += 300
+                        experience.vocabulary_exp += 100
         except Exception as e:
             return Response({'error': 'Failed to save reading answers. ' + str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
