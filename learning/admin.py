@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Experience, ReadingQuestion, GrammarQuestion, VocabularyQuestion, ReadingAnswer, GrammarAnswer, \
-    VocabularyAnswer, GPTReport, SpeakingPractice, WritingPractice, Lecture, Chat
+from .models import Experience, ReadingQuestion, ReadingAnswer, GPTReport, Chat, Reading, Lessons, Tasks, TaskAnswer
 
 
 @admin.register(Experience)
@@ -48,13 +47,10 @@ class ExperienceAdmin(admin.ModelAdmin):
 
 
 admin.site.register(ReadingQuestion)
-admin.site.register(GrammarQuestion)
-admin.site.register(VocabularyQuestion)
 admin.site.register(ReadingAnswer)
-admin.site.register(GrammarAnswer)
-admin.site.register(VocabularyAnswer)
 admin.site.register(GPTReport)
-admin.site.register(SpeakingPractice)
-admin.site.register(WritingPractice)
-admin.site.register(Lecture)
 admin.site.register(Chat)
+admin.site.register(Reading)
+admin.site.register(Lessons)
+admin.site.register(Tasks)
+admin.site.register(TaskAnswer)
