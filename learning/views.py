@@ -1,6 +1,7 @@
 import os
 
 import requests
+from django.conf import settings
 from django.db import transaction
 from django.http import JsonResponse
 from django.utils.timezone import now
@@ -255,30 +256,37 @@ class ReadingAnswerView(APIView):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-@swagger_auto_schema(
-    operation_description="Submit an audio response"
-)
 def upload_audio(request, chat_id):
     audio_file = request.FILES.get('audio_file')
     if not audio_file:
         return JsonResponse({'error': 'No audio file provided'}, status=status.HTTP_400_BAD_REQUEST)
 
+    upload_dir = os.path.join(settings.BASE_DIR, 'uploads')
+    if not os.path.exists(upload_dir):
+        os.makedirs(upload_dir)
+
     timestamp = now().strftime("%Y%m%d%H%M%S")
     user_id = request.user.id
     filename = f'audio_{user_id}_{timestamp}.mp3'
-
-    file_path = os.path.join(MEDIA_ROOT, filename)
+    file_path = os.path.join(upload_dir, filename)
     print(file_path)
+
     with open(file_path, 'wb+') as destination:
         for chunk in audio_file.chunks():
             destination.write(chunk)
 
-    chat = Chat.objects.get(id=chat_id)
-    user = User(id=chat_id, name="Эламир", surname="Кадыргалеев", age=20)
-    response_text = query_api(user, path_to_audio=file_path)
-    print(response_text)
+    try:
+        chat = Chat.objects.get(id=chat_id)
+        user = User(id=chat_id, name="Эламир", surname="Кадыргалеев", age=20)
+        response_text = query_api(user, path_to_audio=file_path)
+        print(response_text)
 
-    url = "https://7a68-178-91-253-72.ngrok-free.app/synthesize/"
-    data = {"text": response_text}
-    post_text_to_service.delay(url, data)
-    return JsonResponse({'response': response_text})
+        url = "https://7a68-178-91-253-72.ngrok-free.app/synthesize/"
+        data = {"text": response_text}
+        post_text_to_service.delay(url, data)
+
+        return JsonResponse({'response': response_text})
+    except Chat.DoesNotExist:
+        return JsonResponse({'error': 'Chat not found'}, status=status.HTTP_404_NOT_FOUND)
+    except User.DoesNotExist:
+        return JsonResponse({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
