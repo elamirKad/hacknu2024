@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from learning.models import Experience
 from .serializers import UserSerializer, UserLoginSerializer
 
 
@@ -14,7 +15,8 @@ class CreateUserView(APIView):
     def post(self, request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            user = serializer.save()
+            Experience.objects.create(user=user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
