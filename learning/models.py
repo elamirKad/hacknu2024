@@ -76,15 +76,15 @@ class Reading(models.Model):
 
 
 class ReadingQuestion(models.Model):
-    reading = models.ForeignKey(Reading, on_delete=models.CASCADE)
-    question = models.TextField()
+    reading = models.ForeignKey(Reading, on_delete=models.CASCADE, null=True)
+    question = models.TextField(null=True)
 
 
 class ReadingAnswer(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    reading_question = models.ForeignKey(ReadingQuestion, on_delete=models.CASCADE)
-    answer = models.TextField()
-    correct = models.BooleanField(default=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    reading_question = models.ForeignKey(ReadingQuestion, on_delete=models.CASCADE, null=True)
+    answer = models.TextField(null=True)
+    correct = models.BooleanField(default=False, null=True)
 
 
 class GPTReport(models.Model):
