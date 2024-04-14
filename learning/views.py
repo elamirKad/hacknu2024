@@ -261,15 +261,10 @@ def upload_audio(request, chat_id):
     if not audio_file:
         return JsonResponse({'error': 'No audio file provided'}, status=status.HTTP_400_BAD_REQUEST)
 
-    upload_dir = os.path.join(settings.BASE_DIR, 'uploads')
-    if not os.path.exists(upload_dir):
-        os.makedirs(upload_dir)
-
-    timestamp = now().strftime("%Y%m%d%H%M%S")
-    user_id = request.user.id
-    filename = f'audio_{user_id}_{timestamp}.mp3'
-    file_path = os.path.join(upload_dir, filename)
-    print(file_path)
+    upload_dir = os.path.join(settings.BASE_DIR, 'media')
+    os.makedirs(upload_dir, exist_ok=True)
+    file_path = os.path.join(upload_dir, audio_file.name)
+    print("Attempting to save to:", file_path)
 
     with open(file_path, 'wb+') as destination:
         for chunk in audio_file.chunks():
