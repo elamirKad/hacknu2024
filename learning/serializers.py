@@ -51,13 +51,13 @@ class TaskAnswerSerializer(serializers.ModelSerializer):
 class ReadingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reading
-        fields = ['id', 'text', 'title', 'description', 'level']
+        fields = ['id', 'text_en', 'text_kz', 'title', 'description', 'level']
 
 
 class ReadingQuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReadingQuestion
-        fields = ['id', 'reading', 'question']
+        fields = ['id', 'reading', 'question_en', 'question_kz']
 
 
 class ReadingAnswerSerializer(serializers.ModelSerializer):

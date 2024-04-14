@@ -69,7 +69,8 @@ class TaskAnswer(models.Model):
 
 
 class Reading(models.Model):
-    text = models.TextField()
+    text_en = models.TextField(null=True)
+    text_kz = models.TextField(null=True)
     title = models.CharField(max_length=255)
     description = models.TextField()
     level = models.IntegerField(choices=((1, 'Level 1'), (2, 'Level 2'), (3, 'Level 3')))
@@ -77,7 +78,8 @@ class Reading(models.Model):
 
 class ReadingQuestion(models.Model):
     reading = models.ForeignKey(Reading, on_delete=models.CASCADE, null=True)
-    question = models.TextField(null=True)
+    question_en = models.TextField(null=True)
+    question_kz = models.TextField(null=True)
 
 
 class ReadingAnswer(models.Model):
