@@ -256,7 +256,7 @@ def get_reading_task(reading_task_id):
     return questions, text
 
 
-def check_reading_answers(reading_task_id, answers_kk):
+def check_reading_answers(answers_kk, questions, text):
     """
     Check the answers to the reading task. How much of the text was understood?
     Uses function calls to OpenAI and gives comment for each question and either 1 or 0 for correct or incorrect.
@@ -264,14 +264,6 @@ def check_reading_answers(reading_task_id, answers_kk):
 
     # translate all answers to english
     answers_en = [translate('kk', 'en', answer) for answer in answers_kk]
-
-    with open(reading_task_id + "/questions_en.txt", "r",
-              encoding="utf-8") as file:
-        questions = file.readlines()
-
-    with open(reading_task_id + "/text_en.txt", "r",
-              encoding="utf-8") as file:
-        text = file.read()
 
     qna = ""
     for question, answer in zip(questions, answers_en):

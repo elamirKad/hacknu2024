@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.http import JsonResponse
 from drf_yasg import openapi
 from drf_yasg.openapi import Schema, TYPE_OBJECT, TYPE_INTEGER, TYPE_BOOLEAN, TYPE_STRING
@@ -8,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Experience, ReadingQuestion, Chat, GPTReport, Lessons, TaskAnswer, Tasks, Reading, ReadingAnswer
-from .open import User, query_api, analyze_dialogue
+from .open import User, query_api, analyze_dialogue, check_reading_answers
 from .serializers import ExperienceSerializer, GPTReportSerializer, LessonsSerializer, TasksSerializer, \
     ReadingSerializer, ReadingQuestionSerializer
 
@@ -183,19 +184,32 @@ class ReadingDetailView(APIView):
 class ReadingAnswerView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def post(self, request, id):
+    def post(self, request):
+        answers_kk = [answer_data.get('answer') for answer_data in request.data.get('answers', [])]
+        question_ids = [answer_data.get('id') for answer_data in request.data.get('answers', [])]
+
+        reading_questions = ReadingQuestion.objects.filter(id__in=question_ids).select_related('reading')
+
+        questions_en = {rq.id: rq.question_en for rq in reading_questions}
+        readings_texts = {rq.id: rq.reading.text_en for rq in reading_questions}
+
+        questions_en_list = [questions_en.get(id) for id in question_ids]
+        readings_texts_list = [readings_texts.get(id) for id in question_ids]
+
+        api_result = check_reading_answers(answers_kk, questions_en_list, readings_texts_list)
+
         try:
-            reading_question = ReadingQuestion.objects.get(id=id)
-            provided_answer = request.data.get('answer')
-            correct = (provided_answer == reading_question.ideal_answer)
+            with transaction.atomic():
+                for i, answer_data in enumerate(request.data.get('answers', [])):
+                    question_id = answer_data.get('id')
+                    ReadingAnswer.objects.create(
+                        user=request.user,
+                        reading_question_id=question_id,
+                        answer=answers_kk[i],
+                        correct=api_result['scores'][i],
+                        comment=api_result['comments'][i]
+                    )
+        except Exception as e:
+            return Response({'error': 'Failed to save reading answers. ' + str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-            ReadingAnswer.objects.create(
-                user=request.user,
-                reading_question=reading_question,
-                answer=provided_answer,
-                correct=correct
-            )
-
-            return Response({'correct': correct})
-        except ReadingQuestion.DoesNotExist:
-            return Response({'error': 'Reading question not found.'}, status=status.HTTP_404_NOT_FOUND)
+        return Response(api_result)
