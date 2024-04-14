@@ -13,5 +13,5 @@ urlpatterns = [
     path('task/<int:id>/', TaskAnswerView.as_view(), name='learning-task'),
     path('reading/', ReadingListView.as_view(), name='learning-reading'),
     path('reading/<int:id>/', ReadingDetailView.as_view(), name='learning-reading-detail'),
-    path('reading/task/<int:id>/', ReadingAnswerView.as_view(), name='learning-reading-answer'),
+    path('reading/task/', ReadingAnswerView.as_view(), name='learning-reading-answer'),
 ]
