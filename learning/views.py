@@ -145,9 +145,10 @@ class LessonDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, id):
-        tasks = Tasks.objects.filter(lesson__id=id)
-        serializer = TasksSerializer(tasks, many=True)
+        lesson = Lessons.objects.prefetch_related('tasks_set').get(id=id)
+        serializer = LessonsSerializer(lesson)
         return Response(serializer.data)
+
 
 
 class TaskAnswerView(APIView):

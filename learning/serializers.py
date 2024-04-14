@@ -30,16 +30,18 @@ class GPTReportSerializer(serializers.ModelSerializer):
         fields = ['id', 'report_data', 'datetime']
 
 
-class LessonsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Lessons
-        fields = ['id', 'level', 'markdown']
-
-
 class TasksSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tasks
         fields = ['id', 'lesson', 'question', 'answers', 'correct_answer']
+
+
+class LessonsSerializer(serializers.ModelSerializer):
+    tasks = TasksSerializer(many=True, read_only=True, source='tasks_set')
+
+    class Meta:
+        model = Lessons
+        fields = ['id', 'level', 'markdown', 'tasks']
 
 
 class TaskAnswerSerializer(serializers.ModelSerializer):

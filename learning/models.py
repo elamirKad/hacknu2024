@@ -55,7 +55,7 @@ class Lessons(models.Model):
 
 
 class Tasks(models.Model):
-    lesson = models.ForeignKey(Lessons, on_delete=models.CASCADE)
+    lesson = models.ForeignKey(Lessons, on_delete=models.CASCADE, related_name='tasks')
     question = models.TextField()
     answers = models.JSONField()
     correct_answer = models.TextField()
