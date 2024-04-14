@@ -206,8 +206,7 @@ class ReadingAnswerView(APIView):
                         user=request.user,
                         reading_question_id=question_id,
                         answer=answers_kk[i],
-                        correct=api_result['scores'][i],
-                        comment=api_result['comments'][i]
+                        correct=api_result['scores'][i]
                     )
         except Exception as e:
             return Response({'error': 'Failed to save reading answers. ' + str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
