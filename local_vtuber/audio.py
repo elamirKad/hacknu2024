@@ -14,7 +14,7 @@ from vtube_plugin.connector import VTubeConnector
 
 class AsyncSpeechSynthesizer:
     def __init__(self, connector: VTubeConnector = None):
-        self.api = "7X0G4XB-FAH4CHN-NY86S8M-53CC8X1"
+        self.api = ""
         self.is_playing = False
         self.playback_queue = asyncio.Queue()  # Changed to asyncio.Queue
         self.audio_generation_lock = asyncio.Lock()
